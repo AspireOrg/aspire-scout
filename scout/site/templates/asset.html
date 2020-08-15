@@ -1,0 +1,77 @@
+{% extends "boiler/base.html" %}
+{% block content %}
+	<br />
+
+	<div class="block_header">
+		<div class="block_title"><h4>{{ assetname }}</h4>&nbsp;&nbsp;&nbsp;&nbsp;<small>{{ assetinfo['description'] }}, an Aspire asset</small></div>
+		<div class="block_hash"><small>Created in tx <a href="/tx/{{ issuance['tx_hash'] }}">{{ issuance['tx_hash'] }}</a></small></div>
+		<div class="block_hash"><small>Included in GASP Block <a href="/block/{{ issuance['block_index'] }}">{{ issuance['block_index'] }}</a></small></div>
+		<div class="block_hash"><small>{% if assetinfo['divisible'] %}{{ assetinfo['supply'] / 100000000 }}{% else %}{{ assetinfo['supply'] }}{% endif %} {{ assetname }} Total Supply</small></div>
+		{% if not assetinfo['divisible'] %}
+			<div class="block_hash"><small>A non-divisible asset</small></div>
+		{% endif %}
+	</div>
+	<br />
+
+	<h5>Holders</h5>
+	<div id="holders-table"></div>
+	<br />
+
+	<h5>Transfers</h5>
+	<div id="transfers-table"></div>
+<!-- 
+	{{ issuance }}<br /><br />
+
+	{{ assetinfo }}<br /><br />
+
+	{{ sends }}<br /><br /> -->
+	
+{% endblock %}
+
+{% block scripts %}
+	<script>
+		new Tabulator("#holders-table", {
+		    height:"300px",
+		    layout:"fitColumns",
+		    placeholder:"No data loaded..",
+		    ajaxURL:"/api/holders/{{ assetname }}",
+    		ajaxProgressiveLoad:"scroll",
+		    columns:[
+		        {title:"Amount", field:"address_quantity", sorter:"number", width:200, formatter: quantityFormattor({% if assetinfo['divisible'] %}true{% else %}false{% endif %})},
+		        {title:"Address", field:"address", sorter:"string",
+		        	formatter:function(cell, formatterParams, onRendered){
+					    //cell - the cell component
+					    //formatterParams - parameters set for the column
+					    //onRendered - function to call when the formatter has been rendered
+					    return "<a href=\"/address/" + cell.getValue() + "\">" + cell.getValue() + "</a>";
+					}}
+		    ],
+		});
+		new Tabulator("#transfers-table", {
+		    height:"300px",
+		    layout:"fitColumns",
+		    placeholder:"No data loaded..",
+		    ajaxURL:"/api/assets/{{ assetname }}/sends",
+    		ajaxProgressiveLoad:"scroll",
+		    columns:[
+		    	{title: "", field: "time", width: 150, sorter: "number", 
+		    		formatter: function(cell, formatterParams, onRendered) {
+		    			return timeDifference(cell.getValue());
+		    		}},
+		        {title:"Amount", field:"quantity", sorter:"number", width:120, formatter: quantityFormattor({% if assetinfo['divisible'] %}true{% else %}false{% endif %})},
+		        {title:"From", field:"source", sorter:"string",
+		        	formatter:function(cell, formatterParams, onRendered) {
+					    return "<small><a href=\"/address/" + cell.getValue() + "\">" + cell.getValue() + "</a></small>";
+					}},
+		        {title:"To", field:"destination", sorter:"string",
+		        	formatter:function(cell, formatterParams, onRendered) {
+					    return "<small><a href=\"/address/" + cell.getValue() + "\">" + cell.getValue() + "</a></small>";
+					}},
+		        {title:"Tx", field:"tx_hash", sorter:"string",
+		        	formatter:function(cell, formatterParams, onRendered) {
+					    return "<small><a href=\"/tx/" + cell.getValue() + "\">" + cell.getValue() + "</a></small>";
+					}}
+		    ],
+		});
+	</script>
+{% endblock %}

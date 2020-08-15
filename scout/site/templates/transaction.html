@@ -1,0 +1,97 @@
+{% extends "boiler/base.html" %}
+{% block content %}
+	<div class="block_header">
+		<div class="block_title"><h4>&nbsp;&nbsp;Aspire Gas Transaction</h4>
+			{% if 'blocktime' in tx %}
+				<small>&nbsp;mined {{ tx['blocktime'] | float | humanize }} with {{ tx['confirmations'] }} confirmations</small>
+			{% else %}
+
+			{% endif %}
+		</div>
+		<div class="block_hash">TXID {{ thash }}</div>
+		{% if 'blockheight' in tx %}
+			<div class="block_hash"><small>Included in GASP Block {{ tx.get('blockheight', '') }} <a href="/block/{{ tx['blockhash'] }}">{{ tx['blockhash'] }}</a></small></div>
+		{% endif %}
+	</div>
+	<br />
+	<small><div id="transactions-table" class='transactions-table'></div></small>
+	<br />
+	<h5>Asset Transfers</h5>
+	<div id="transfers-table" class='transfers-table'></div>
+	<br />
+	<h5>Asset Issuances</h5>
+	<div id="issuances-table" class='issuances-table'></div>
+	<br />
+	<h5>Broadcasts</h5>
+	<div id="broadcasts-table" class='broadcasts-table'></div>
+	<br />
+
+	
+{% endblock %}
+
+{% block scripts %}
+	<script>
+		build_transaction_block("{{ thash }}", function(div) {
+			$(".transactions-table").append(div);
+		});
+		new Tabulator("#broadcasts-table", {
+		    height:"450px",
+		    layout:"fitColumns",
+		    placeholder:"No data loaded..",
+		    ajaxURL:"/api/tx/{{ thash }}/broadcasts",
+    		ajaxProgressiveLoad:"scroll",
+		    columns:[
+		        {title:"Address", field:"source", sorter:"string",
+		        	formatter:function(cell, formatterParams, onRendered) {
+					    return "<small><a href=\"/address/" + cell.getValue() + "\">" + cell.getValue() + "</a></small>";
+					}},
+		        {title:"Message", field:"text", sorter:"string"},
+		    ],
+		});
+		new Tabulator("#transfers-table", {
+		    height:"300px",
+		    layout:"fitColumns",
+		    placeholder:"No data loaded..",
+		    ajaxURL:"/api/tx/{{ thash }}/sends",
+    		ajaxProgressiveLoad:"scroll",
+		    columns:[
+		        {title:"Asset", field:"asset", sorter:"string", formatter:assetFormatter, mutator: assetMutator, width:120},
+		        {title:"Amount", field:"quantity", sorter:"number", width:120, mutator: quantityMutator},
+		        {title:"From", field:"source", sorter:"string",
+		        	formatter:function(cell, formatterParams, onRendered) {
+					    return "<small><a href=\"/address/" + cell.getValue() + "\">" + cell.getValue() + "</a></small>";
+					}},
+		        {title:"To", field:"destination", sorter:"string",
+		        	formatter:function(cell, formatterParams, onRendered) {
+					    return "<small><a href=\"/address/" + cell.getValue() + "\">" + cell.getValue() + "</a></small>";
+					}},
+		        {title:"Memo", field:"memo", sorter:"string",
+		        	formatter:function(cell, formatterParams, onRendered) {
+		        		if (cell.getValue() !== undefined)
+					    	return "<small>" + cell.getValue() + "</small>";
+					    return '';
+					}},
+		        {title:"Tx", field:"tx_hash", sorter:"string",
+		        	formatter:function(cell, formatterParams, onRendered) {
+					    return "<small><a href=\"/tx/" + cell.getValue() + "\">" + cell.getValue() + "</a></small>";
+					}}
+		    ],
+		});
+		new Tabulator("#issuances-table", {
+		    height:"300px",
+		    layout:"fitColumns",
+		    placeholder:"No data loaded..",
+		    ajaxURL:"/api/tx/{{ thash }}/issuances",
+    		ajaxProgressiveLoad:"scroll",
+		    columns:[
+		    	{title:"Status", field:"status", sorter:"string", width: 100},
+		        {title:"Asset", field:"asset", sorter:"string", formatter:assetFormatter, mutator: assetMutator, width:120},
+		        {title:"Amount", field:"quantity", sorter:"number", width:120, mutator: quantityMutator},
+		        {title:"Tx", field:"tx_hash", sorter:"string",
+		        	formatter:function(cell, formatterParams, onRendered) {
+					    return "<small><a href=\"/tx/" + cell.getValue() + "\">" + cell.getValue() + "</a></small>";
+					}}
+		    ],
+		});
+    </script>
+{% endblock %}

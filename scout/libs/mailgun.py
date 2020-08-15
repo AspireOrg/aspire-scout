@@ -1,0 +1,69 @@
+import requests
+import json
+
+
+class Mailgun(object):
+    app = None
+    mailgun_api = None
+
+    def __init__(self, app=None):
+        if app:
+            self.init_app(app)
+
+    def init_app(self, app):
+        self.mailgun_api = MailgunApi(app.config['MAILGUN_DOMAIN'], app.config['MAILGUN_API_KEY'])
+        self.app = app
+
+    def send(self, **kwargs):
+        if not self.mailgun_api:
+            raise ValueError('A valid app instance has not been provided')
+
+        default_from = self.app.config.get('MAILGUN_DEFAULT_FROM')
+        if default_from:
+            kwargs.setdefault('from', default_from)
+
+        return self.mailgun_api.send_email(**kwargs)
+
+    @staticmethod
+    def get_list_user_serialization(user, dump=False):
+        serialized_u = user.serialize_mailgun()
+        fn = serialized_u.get('full_name', None)
+        if dump:
+            serialized_u = json.dumps(serialized_u)
+        return {'address': user.email,
+                'name': fn,
+                'vars': serialized_u,
+                'subscribed': user.emailing_subscribed,
+                'upsert': True}
+
+    def upsert_list_user(self, mailinglist, user):
+        return requests.post('https://api.mailgun.net/v3/lists/{}/members'.format(mailinglist),
+                             data=self.get_list_user_serialization(user, dump=True),
+                             auth=self.mailgun_api.auth)
+
+    def mass_upsert_list_user(self, mailinglist, serialized_users):
+        return requests.post('https://api.mailgun.net/v3/lists/{}/members.json'.format(mailinglist),
+                             data={'members': json.dumps(serialized_users), 'upsert': True},
+                             auth=self.mailgun_api.auth)
+
+    def remove_list_user(self, mailinglist, user):
+        return requests.delete('https://api.mailgun.net/v3/lists/{}/members/{}'.format(mailinglist, user.email))
+
+
+class MailgunApi(object):
+    def __init__(self, domain, api_key):
+        self.domain = domain
+        self.api_key = api_key
+
+    def send_email(self, recipient_variables=None, **kwargs):
+        if recipient_variables:
+            kwargs['recipient-variables'] = recipient_variables
+        return requests.post(self.endpoint, data=kwargs, auth=self.auth)
+
+    @property
+    def endpoint(self):
+        return 'https://api.mailgun.net/v3/{}/messages'.format(self.domain)
+
+    @property
+    def auth(self):
+        return ('api', self.api_key)

@@ -1,0 +1,19 @@
+@use 'helpers.scss' as *;
+
+// All scss for the address.html page
+.address-page {
+	@include flexing(column);
+	width: calc(100% - 2rem);
+	max-width: 1280px;
+	margin: auto;
+
+	& > div {
+		@include flexing(column);
+		margin: 1rem;
+		width: 100%;
+	}
+}
+
+.content {
+	max-width: 100%;
+}

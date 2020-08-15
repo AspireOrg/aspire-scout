@@ -1,0 +1,110 @@
+{% extends 'boiler/macros.html' %}
+
+{% block iemac %}
+<!DOCTYPE html>
+<html lang="en" style="height: 100%;">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <link rel="icon" href="/static/images/favicon.png">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.13.0/js/all.min.js" integrity="sha256-KzZiKy0DWYsnwMF+X1DvQngQ2/FxF7MF3Ff72XcpuPs=" crossorigin="anonymous"></script>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tabulator/4.4.3/js/tabulator.min.js" integrity="sha256-u2YCVBkzzkIuLh6bMHUmqv6uuuHLxGgc6XF+rCJUV5k=" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tabulator/4.4.3/css/semantic-ui/tabulator_semantic-ui.min.css" integrity="sha256-CnkWQ5+QY/fiNkWJ9YcCgpQZAgcn+G+KPTeMCa5IUQE=" crossorigin="anonymous" />
+    
+    <script>
+        function timeDifference(value, data, type, cell) {
+            if (typeof value === 'string' || value instanceof String)
+                return value
+            var msPerMinute = 60;
+            var msPerHour = msPerMinute * 60;
+            var msPerDay = msPerHour * 24;
+            var msPerMonth = msPerDay * 30;
+            var msPerYear = msPerDay * 365;
+            var elapsed = Math.floor(Date.now() / 1000) - value;
+            if (elapsed < msPerMinute) {
+                 return Math.round(elapsed/1000) + ' seconds ago';   
+            } else if (elapsed < msPerHour) {
+                 return Math.round(elapsed/msPerMinute) + ' minutes ago';   
+            } else if (elapsed < msPerDay ) {
+                 return Math.round(elapsed/msPerHour) + ' hours ago';   
+            } else if (elapsed < msPerMonth) {
+                return Math.round(elapsed/msPerDay) + ' days ago';   
+            } else if (elapsed < msPerYear) {
+                return Math.round(elapsed/msPerMonth) + ' months ago';   
+            } else {
+                return Math.round(elapsed/msPerYear) + ' years ago';   
+            }
+        }
+    </script>
+
+    <title>Aspire Explorer</title>
+
+    {% assets 'scss_all' %}
+        <link href="{{ ASSET_URL }}" rel="stylesheet">
+    {% endassets %}
+
+    {% block style %}
+    {% endblock %}
+  </head>
+
+  <body>
+
+  	<div class="header">
+        <div>
+            <a href="/">
+                <img class="desktop_logo" src="/static/images/Aspire.svg">
+                <img class="mobile_logo" src="/static/images/favicon.png">
+            </a>
+        </div>
+
+        {% if 'result' in running_info %}
+            <div class="search-container">
+                <form action="/search" method="POST" class="searchForm">
+                    {{ search_form.hidden_tag() }}
+                    {{ search_form.search_term() }}
+                    <input type="hidden" id="is_search" value="True" />
+                    {{ search_form.submit() }}
+                </form>
+            </div>
+            <div><small>{% if running_info['result']['running_testnet'] %}<div style="color: red;"><b>TESTNET!</b></div> {% endif %}{{ running_info['result']['gasp_block_count'] }} GASP Blocks</small></div>
+        {% else %}
+            <div></div>
+            <div><small>This explorer is syncing...</small></div>
+        {% endif %}
+  	</div>
+
+    <div class="content">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}" role="alert">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        {% block content %}
+        {% endblock %}
+    </div>
+
+    <div class="footer">
+        <div>This explorer is a&nbsp;<u>work in progress</u>.</div>
+        <div>Please let us know how we're doing!&nbsp;&nbsp;&nbsp;<a href="https://t.me/AspireCommunity" target="_blank"><i class="fab fa-telegram-plane"></i></a></div>
+    </div>
+    <script src="https://code.jquery.com/jquery-3.5.0.min.js" integrity="sha256-xNzN2a4ltkB44Mc/Jz3pT4iU1cmeR0FkXs4pru/JxaQ=" crossorigin="anonymous"></script>
+
+    {% assets "js_all" %}
+        <script type="text/javascript" src="{{ ASSET_URL }}"></script>
+    {% endassets %}
+
+    {% block scripts %}
+    {% endblock %}
+  </body>
+</html>
+{% endblock %}

@@ -1,0 +1,119 @@
+{% extends "boiler/base.html" %}
+{% block style %}
+    {% assets filters="scss", output="gen/address.css", "styles/address.scss"  %}
+        <link href="{{ ASSET_URL }}" rel="stylesheet">
+    {% endassets %}
+{% endblock %}
+{% block content %}
+<center>
+	<h4>{{ addy }}</h4>
+	<small>An Aspire address</small>
+</center>
+<div class="address-page">
+
+	<div class="address-balances">
+		<h5>Balances</h5>
+		<div id="balances-table"></div>
+	</div>
+
+	<div>
+		<h5>Broadcasts</h5>
+		<div id="broadcasts-table"></div>
+	</div>
+
+	<div>
+		<h5>Asset Transfers</h5>
+		<div id="transactions-table"></div>
+	</div>
+
+	<div>
+		<h5>Asset Issuances</h5>
+		<div id="issuances-table"></div>
+	</div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+	<script>
+
+		new Tabulator("#balances-table", {
+		    height:"300px",
+		    layout:"fitColumns",
+		    placeholder:"No data loaded..",
+		    ajaxURL:"/api/address/{{ addy }}/balances",
+    		ajaxProgressiveLoad:"scroll",
+		    columns:[
+		        {title:"Asset", field:"asset", sorter:"string", formatter:assetFormatter, mutator: assetMutator},
+		        {title:"Balance", field:"quantity", sorter:"number", mutator: quantityMutator}
+		    ],
+		});
+		new Tabulator("#transactions-table", {
+		    height:"300px",
+		    layout:"fitColumns",
+		    placeholder:"No data loaded..",
+		    ajaxURL:"/api/address/{{ addy }}/sends",
+    		ajaxProgressiveLoad:"scroll",
+		    columns:[
+		    	{title: "", field: "time", width: 150, sorter: "number", 
+		    		formatter: function(cell, formatterParams, onRendered) {
+		    			return timeDifference(cell.getValue());
+		    		}},
+		        {title:"Asset", field:"asset", sorter:"string", formatter:assetFormatter, mutator: assetMutator, width:120},
+		        {title:"Amount", field:"quantity", sorter:"number", width:120, mutator: quantityMutator},
+		        {title:"From", field:"source", sorter:"string",
+		        	formatter:function(cell, formatterParams, onRendered) {
+					    return "<small><a href=\"/address/" + cell.getValue() + "\">" + cell.getValue() + "</a></small>";
+					}},
+		        {title:"To", field:"destination", sorter:"string",
+		        	formatter:function(cell, formatterParams, onRendered) {
+					    return "<small><a href=\"/address/" + cell.getValue() + "\">" + cell.getValue() + "</a></small>";
+					}},
+		        {title:"Memo", field:"memo", sorter:"string",
+		        	formatter:function(cell, formatterParams, onRendered) {
+		        		if (cell.getValue() !== undefined)
+					    	return "<small>" + cell.getValue() + "</small>";
+					    return '';
+					}},
+		        {title:"Tx", field:"tx_hash", sorter:"string",
+		        	formatter:function(cell, formatterParams, onRendered) {
+					    return "<small><a href=\"/tx/" + cell.getValue() + "\">" + cell.getValue() + "</a></small>";
+					}}
+		    ],
+		});
+		new Tabulator("#issuances-table", {
+		    height:"300px",
+		    layout:"fitColumns",
+		    placeholder:"No data loaded..",
+		    ajaxURL:"/api/address/{{ addy }}/issuances",
+    		ajaxProgressiveLoad:"scroll",
+		    columns:[
+		    	{title: "", field: "time", width: 150, sorter: "number", 
+		    		formatter: function(cell, formatterParams, onRendered) {
+		    			return timeDifference(cell.getValue());
+		    		}},
+		    	{title:"Status", field:"status", sorter:"string", width: 100},
+		        {title:"Asset", field:"asset", sorter:"string", formatter:assetFormatter, mutator: assetMutator, width:120},
+		        {title:"Amount", field:"quantity", sorter:"number", width:120, mutator: quantityMutator},
+		        {title:"Tx", field:"tx_hash", sorter:"string",
+		        	formatter:function(cell, formatterParams, onRendered) {
+					    return "<small><a href=\"/tx/" + cell.getValue() + "\">" + cell.getValue() + "</a></small>";
+					}}
+		    ],
+		});
+		new Tabulator("#broadcasts-table", {
+		    height:"450px",
+		    layout:"fitColumns",
+		    placeholder:"No data loaded..",
+		    ajaxURL:"/api/address/{{ addy}}/broadcasts",
+    		ajaxProgressiveLoad:"scroll",
+		    columns:[
+		    	{title: "Time", field: "timestamp", sorter: "number", width:150, mutator: timeDifference},
+		        {title:"Message", field:"text", sorter:"string"},
+		        {title:"Tx", field:"tx_hash", sorter:"string",
+		        	formatter:function(cell, formatterParams, onRendered) {
+					    return "<small><a href=\"/tx/" + cell.getValue() + "\">" + cell.getValue() + "</a></small>";
+					}},
+		    ],
+		});
+	</script>
+{% endblock %}

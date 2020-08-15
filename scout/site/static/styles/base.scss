@@ -1,0 +1,225 @@
+@use 'helpers.scss' as *;
+
+html,
+body {
+}
+
+body {
+	@include flexing(column, flex-start, center);
+	background-color: #fafafa;
+	color: black;
+	margin: 0;
+	width: 100%;
+	min-height: 100%;
+}
+
+a {
+	color: #ff0000;
+}
+a:hover {
+	color: #ff0000;
+}
+input#submit:hover {
+    background-color: rgba(255, 0, 0, 0.6);
+    color: white;
+    font-weight: 600;
+}
+
+.footer {
+	@include flexing(row, flex-end, center);
+	overflow: hidden;
+ 	left: 0;
+  	bottom: 0;
+	width: calc(100vw - 1rem);
+	box-shadow: inset 0 1px 0 0 #e5e5e5;
+	font-size: 0.8rem;
+	height: 2.5rem;
+	padding: 1rem;
+	opacity: 0.5;
+	margin-top: 1rem;
+	background-color: white;
+
+
+	@include sm {
+		@include flexing(column, space-evenly, center);
+		height: 10rem;
+
+		.fa-telegram-plane {
+			font-size: 1rem;
+		}
+	}
+
+	.fa-telegram-plane {
+		font-size: 1.5rem;
+		color: blue;
+	}
+}
+
+.header {
+	@include flexing(row, space-evenly, center);
+	width: 100%;
+	height: 4rem;
+	margin-bottom: 1rem;
+	background-color: white;
+
+	box-shadow: inset 0 -1px 0 0 #e5e5e5;
+
+	& > div {
+		@include flexing(row);
+		flex: 1;
+
+		@include sm {
+			margin-right: 1rem;
+		}
+	}
+
+	& > :last-child {
+		@include flex-just(flex-end);
+		padding-right: 2rem;
+
+    	@include sm {
+    		display: none;
+    	}
+	}
+
+	.search-container {
+		@include sm {
+			flex: 6;
+			width: 100%;
+		}
+	}
+
+	.searchForm {
+		@include flexing(row);
+		width: 100%;
+
+		input {
+			width: 100%;
+			padding: 9px 12px;
+		    background: #fff;
+		    border: solid 1px #d9d9d9;
+		    border-radius: 6px;
+		    -webkit-appearance: none;
+		    transition: border-color .2s,box-shadow .2s;
+
+		    border-radius: 2px!important;
+		    line-height: 1!important;
+		    font-size: .8rem!important;
+
+		}
+		#submit {
+			width: 6rem;
+			height: 2.1875rem;
+			font-weight: 600;
+		}
+	}
+
+
+	.desktop_logo {
+		height: 5rem;
+    	position: absolute;
+    	margin-top: -1.5rem;
+    	margin-left: 2rem;
+    	padding: 0 !important;
+
+    	@include sm {
+    		display: none;
+    	}
+	}
+
+	.mobile_logo {
+		display: none;
+		height: 2rem;
+		margin-left: 1rem;
+
+		@include sm {
+			display: block;
+		}
+	}
+}
+
+
+.content {
+	width: 100%;
+	max-width: 1024px;
+}
+
+
+.block_header {
+	@include flexing(column);
+	width: 100%;
+
+	.block_title {
+		@include flexing(row, flex-start, center);
+	}
+
+	.block_hash {
+		margin-left: 0.75rem;
+	}
+}
+
+
+.transactions-table {
+	@include flexing(column);
+	width: 100%;
+}
+
+.transactions-row {
+	@include flexing(column);
+	width: 100%;
+	border: 1px solid rgba(34,36,38,.15);
+	border-radius: 6px;
+	background-color: white;
+	margin-bottom: 2rem;
+}
+
+.transaction-header {
+	@include flexing(row, space-between, center);
+	padding: 1rem;
+}
+
+.transaction-io {
+	@include flexing(row);
+	border-top: 1px solid rgba(34,36,38,.15);
+	border-bottom: 1px solid rgba(34,36,38,.15);
+	background-color: #f9fafb;
+	padding: 1rem;
+	width: 100%;
+
+	.inputs {
+		flex: 1;
+		.input {
+			@include flexing(row, space-between, center);
+			border-top: 1px solid rgba(34,36,38,.15);
+			padding: .5rem;
+    		background-color: rgba(255,255,255,0.8);
+    		border-radius: 2px;
+		}
+	}
+
+	.direction {
+		@include flexing(column, center, center);
+		flex: 0.1;
+		padding-left: 1rem;
+		padding-right: 1rem;
+		font-weight: 600;
+		font-size: 2rem;
+		color: gray;
+	}
+
+	.outputs {
+		flex: 1;
+		.output {
+			@include flexing(row, space-between, center);
+			border-top: 1px solid rgba(34,36,38,.15);
+			padding: .5rem;
+    		background-color: rgba(255,255,255,0.8);
+    		border-radius: 2px;
+		}
+	}
+}
+
+.transaction-footer {
+	padding: 1rem;
+	text-align: right;
+}
