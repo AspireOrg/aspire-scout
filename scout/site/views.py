@@ -20,6 +20,11 @@ def check_synced(func):
             return index()
     return wrapper
 
+@bp.route('static/protocol_changes.json')
+def protocol_changes():
+    from flask import current_app
+    return current_app.send_static_file('protocol_changes.json')
+
 @bp.route('', methods=['GET'])
 def index():
     return render_template('index.html')
