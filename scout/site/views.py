@@ -43,7 +43,9 @@ def search():
                 return redirect('/address/' + str(search_form.search_term.data))
             if search_form.is_asset:
                 return redirect('/asset/' + str(search_form.search_term.data))
-    flash('Couldn\'t find what you searched for..', 'danger')
+            flash('Couldn\'t find what you searched for..', 'danger')
+        else:
+            flash('Invalid search form.. Please try again.', 'danger')
     return render_template('index.html')
 
 @bp.route('block/<bindex>', methods=['GET'])

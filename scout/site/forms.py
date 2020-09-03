@@ -15,9 +15,6 @@ class SearchForm(FlaskForm):
     is_asset = False
 
     def validate(self):
-        if not FlaskForm.validate(self):
-            return False
-
         term = str(self.search_term.data).strip()
 
         # Check for block number
