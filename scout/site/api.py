@@ -290,6 +290,32 @@ def assets():
     return {'data': result, 'last_page': page+1}
 
 
+@bp.route('assets/<assetname>/supply', methods=['GET'])
+def asset_supply(assetname):
+    if assetname == 'ASP':
+        return '1000000000.0'  # This is just faster
+    return str(int(aspire.aspired('get_asset_info', params={"assets": [assetname]})['result'][0]['supply']) / 100000000)
+
+
+@bp.route('assets/<assetname>/circulating', methods=['GET'])
+def asset_circulating(assetname):
+    if assetname == 'ASP':
+        supply = int(100000000000000000)
+        premine_addys = [
+            'GRCfdMktqPs6RyF7ZrN8LY2MYW5ejZG1yQ',
+            'GLRN2PBSpjzrnk3zNkZv5Y3GpmK3cVThZm',
+            'GW1VzXDG1TjxFeUDBvbWoLhC8DELwUAU4x',
+            'GKuMfFwjQoyGy8Bm15pGhM7ZWkSLNqSEvf'
+        ]
+        premine_balances = aspire.aspired('get_balances', params={"filters": [
+            {'field': 'address', 'op': 'IN', 'value': premine_addys},
+            {'field': 'asset', 'op': '==', 'value': assetname}
+        ], "filterop": "and"})
+        total = sum([b['quantity'] for b in premine_balances['result']])
+        return str(int(supply - total) / 100000000)
+    return str(int(aspire.aspired('get_asset_info', params={"assets": [assetname]})['result'][0]['supply']) / 100000000)
+
+
 @bp.route('assets/<asset>/sends', methods=['GET'])
 def asset_sends(asset):
     try:
