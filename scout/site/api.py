@@ -237,6 +237,21 @@ def asset_holers(asset):
     return {'data': events, 'last_page': 1}
 
 
+@bp.route('richlist/<asset>', methods=['GET'])
+def asset_richlist(asset):
+    events = aspire.aspired('get_holders', {'asset': asset})
+    if 'result' in events:
+        events = events['result']
+    else:
+        events = []
+    rich = []
+    i = 1
+    for event in sorted(events, key=lambda t: t['address_quantity'], reverse=True):
+        rich.append({'pos': i, 'address': event['address'], 'balance': float(event['address_quantity']) / 100000000})
+        i += 1
+    return {'data': rich}
+
+
 @bp.route('transfers', methods=['GET'])
 def transfers():
     try:
