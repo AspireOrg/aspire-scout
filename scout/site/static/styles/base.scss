@@ -14,7 +14,8 @@ body {
 }
 
 a {
-	color: #ff0000;
+	color: black;
+	text-decoration: underline;
 }
 a:hover {
 	color: #ff0000;
@@ -162,6 +163,7 @@ input#submit:hover {
 .transactions-table {
 	@include flexing(column);
 	width: 100%;
+	font-size: 0.8rem;
 }
 
 .transactions-row {
@@ -217,6 +219,10 @@ input#submit:hover {
     		border-radius: 2px;
 		}
 	}
+}
+
+.highlight {
+	background-color: rgb(255 255 218) !important;
 }
 
 .transaction-footer {

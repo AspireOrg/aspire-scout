@@ -17,25 +17,35 @@
 	</div>
 
 	<div>
-		<h5>Broadcasts</h5>
-		<div id="broadcasts-table"></div>
-	</div>
-
-	<div>
-		<h5>Asset Transfers</h5>
+		<h5>Aspire Asset Transfers</h5>
 		<div id="transactions-table"></div>
 	</div>
 
 	<div>
-		<h5>Asset Issuances</h5>
+		<h5>Aspire Asset Issuances</h5>
 		<div id="issuances-table"></div>
+	</div>
+
+	<div>
+		<h5>Broadcasts</h5>
+		<div id="broadcasts-table"></div>
+	</div>
+
+	<div id="gasptransactions">
+		<h5>Most Recent gAsp Transactions</h5>
+		<div id="gasptxs-table" class="transactions-table" style="margin-top: 1rem;">
+		</div>
+		<div class="transactions-row">
+			<div id="gasptxs-pagination" class="transaction-header"  style="justify-content: center; width: 100%;">
+				<a href="./{{ addy }}/gasptxs">Browse complete gAsp tx history</a>
+			</div>
+		</div>
 	</div>
 </div>
 {% endblock %}
 
 {% block scripts %}
 	<script>
-
 		new Tabulator("#balances-table", {
 		    height:"300px",
 		    layout:"fitColumns",
@@ -115,5 +125,18 @@
 					}},
 		    ],
 		});
+
+		$.ajax({url: "/api/address/{{ addy }}/transactions?page=1&size=3", success: function(result) {
+			if(result['data'] !== undefined) {
+				result['data'].forEach(function(item) {
+					build_transaction_block(item, function(div) {
+						$("#gasptxs-table").append(div);
+					}, '{{ addy }}');
+			    });
+			} else {
+				console.error(result)
+			}
+		}});
+
 	</script>
 {% endblock %}

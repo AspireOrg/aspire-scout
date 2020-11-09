@@ -402,6 +402,26 @@ def address_sends(address):
     return {'data': add_asset_info(sends), 'last_page': page+1}
 
 
+@bp.route('address/<address>/transactions', methods=['GET'])
+def address_transactions(address):
+    try:
+        page = int(request.args.get('page', 1)) - 1
+    except ValueError:
+        page = 0
+    try:
+        limit = int(request.args.get('size', 15))
+        if limit > 100:
+            limit = 100
+    except ValueError:
+        limit = 15
+    # params in searchrawtransactions = [verbose, skip, limit]
+    txdata = aspire.gasp('searchrawtransactions', params=[address, 1, page * limit, limit, int(True)])
+    if 'data' in txdata:
+        return {'data': txdata['data'], 'last_page': page + 1}
+    else:
+        return txdata
+
+
 @bp.route('address/<address>/issuances', methods=['GET'])
 def address_issuances(address):
     try:

@@ -118,6 +118,24 @@ def address(addy):
                              ]})
     return render_template('address.html', addy=addy, credits=credits)
 
+@bp.route('address/<addy>/gasptxs', methods=['GET'])
+@check_synced
+def address_gasptxs(addy):
+    try:
+        page = int(request.args.get('page', 1)) - 1
+    except ValueError:
+        page = 0
+    try:
+        limit = int(request.args.get('size', 25))
+        if limit > 100:
+            limit = 100
+    except ValueError:
+        limit = 25
+    addy = addy.strip()
+    gasptxs = aspire.gasp('searchrawtransactions', params=[addy, 1, page * limit, limit, int(True)])
+    return render_template('address/gasptxs.html', addy=addy, gasptxs=gasptxs, page=page, limit=limit)
+
+
 @bp.route('asset/<assetname>', methods=['GET'])
 @check_synced
 def asset(assetname):

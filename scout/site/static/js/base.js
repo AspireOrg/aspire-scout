@@ -1,21 +1,23 @@
 
-function build_transaction_block(txid, cb) {
-	$.ajax({url: "/api/tx/" + txid, success: function(result) {
-		// console.log('transaction: ', result);
+function build_transaction_block(txid, cb, highlight_address) {
+	var builder = function(result) {
+		tx = result;
+		if('data' in result)
+			tx = result['data'];
 
 		var div = `
 			<div class="transactions-row">
 				<div class="transaction-header">
-					<a href="/tx/` + result['data']['txid'] + `">` + result['data']['txid'] + `</a><small><div style="opacity: 0.5;">TXID</div></small>
+					<a href="/tx/` + tx['txid'] + `">` + tx['txid'] + `</a><small><div style="opacity: 0.5;">TXID</div></small>
 				</div>
 				<div class="transaction-io">
 					<div class="inputs"><small><div style="opacity: 0.5;">Inputs</div></small>`;
 		
 		var totalIn = 0;
-		result['data']['vin'].forEach(function(input) {
-			div += `<div class="input">`;
+		tx['vin'].forEach(function(input) {
 
 			if(input['coinbase'] !== undefined) {
+				div += `<div class="input">`;
 				div += '<small>Newly Generated + Fees</small>';
 			}
 
@@ -23,7 +25,16 @@ function build_transaction_block(txid, cb) {
 				$.ajax({url: "/api/tx/" + input['txid'], async: false, success: function(result2) {
 					output = result2['data']['vout'][input['vout']];
 					if(output['scriptPubKey']['addresses'] !== undefined) {
-						div += '<div><a href="/address/' + output['scriptPubKey']['addresses'][0] + '">' + output['scriptPubKey']['addresses'][0] + '</a></div><div>' + output['value'] + ' GASP</div>';
+						var classes = 'input';
+						var outaddress = output['scriptPubKey']['addresses'][0];
+						if(highlight_address !== undefined) {
+							if(outaddress == highlight_address) {
+								classes += ' highlight';
+							}
+						}
+
+						div += `<div class="` + classes + `">`;
+						div += '<div><a href="/address/' + outaddress + '">' + outaddress + '</a></div><div>' + output['value'] + ' GASP</div>';
 						totalIn += output['value'];
 					}
 				}});
@@ -43,11 +54,19 @@ function build_transaction_block(txid, cb) {
 				<div class="outputs"><small><div style="opacity: 0.5;">Outputs</div></small>`;
 		
 		var totalOut = 0;
-		result['data']['vout'].forEach(function(output) {
+		tx['vout'].forEach(function(output) {
 
 			if(output['scriptPubKey']['addresses'] !== undefined) {
-				div += `<div class="output">`;
-				div += '<div><a href="/address/' + output['scriptPubKey']['addresses'][0] + '">' + output['scriptPubKey']['addresses'][0] + '</a></div><div>' + output['value'] + ' GASP</div>';
+				var classes = 'output';
+				var outaddress = output['scriptPubKey']['addresses'][0];
+				if(highlight_address !== undefined) {
+					if(outaddress == highlight_address) {
+						classes += ' highlight';
+					}
+				}
+
+				div += `<div class="` + classes + `">`;
+				div += '<div><a href="/address/' + outaddress + '">' + outaddress + '</a></div><div>' + output['value'] + ' GASP</div>';
 				totalOut += output['value']
 				div += `</div>`;
 			}
@@ -65,12 +84,18 @@ function build_transaction_block(txid, cb) {
 		div += `</div>
 				</div>
 				<div class="transaction-footer">
-				<small><div style="opacity: 0.5;">Processed ` + timeDifference(result['data']['time']) + `</div></small>
+				<small><div style="opacity: 0.5;">Processed ` + timeDifference(tx['time']) + `</div></small>
 				</div>
 			</div>`;
 
 		cb(div);
-	}});
+	}
+
+	if (txid.constructor == Object) {
+		builder(txid);
+	} else {
+		$.ajax({url: "/api/tx/" + txid, success: builder});
+	}
 }
 
 
