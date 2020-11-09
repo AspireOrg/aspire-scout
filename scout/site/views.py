@@ -133,7 +133,7 @@ def address_gasptxs(addy):
         limit = 25
     addy = addy.strip()
     gasptxs = aspire.gasp('searchrawtransactions', params=[addy, 1, page * limit, limit, int(True)])
-    return render_template('address/gasptxs.html', addy=addy, gasptxs=gasptxs, page=page, limit=limit)
+    return render_template('address/gasptxs.html', addy=addy, gasptxs=gasptxs, page=page + 1, limit=limit)
 
 
 @bp.route('asset/<assetname>', methods=['GET'])
